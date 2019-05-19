@@ -25,7 +25,7 @@ SECRET_KEY = 'd@8g_45id4jh3(-)edo$7$_7o!8+%h6kfj78a1$o^oa4ut5_n2'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -75,12 +75,14 @@ WSGI_APPLICATION = 'mofbi.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'oracle_db',
-        'USERNAME': 'admin',
-        'PASSSWORD': 'password',
-        'HOST': '127.0.0.1',
-        'PORT': '3600',
+
+         'ENGINE': 'django.db.backends.oracle',
+        'NAME': (
+        '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=10.1.9.213)(PORT=1521))'
+        '(CONNECT_DATA=(SERVICE_NAME=orclpdb1)))'
+        ),
+        'USERNAME': 'ifmis',
+        'PASSSWORD': 'oracle123',
 
     }
 }
