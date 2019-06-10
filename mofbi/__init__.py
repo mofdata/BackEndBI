@@ -1,22 +1,47 @@
-import os
-import json
-import cx_Oracle
-from flask import Flask
+import os 
+import json 
+from flask import Flask 
+import config
+def create_app(test_config=None):
+    # create and configure the app
+    app = Flask(__name__, instance_relative_config=True)
+    app.config.from_mapping(
+        SECRET_KEY='dev',
+        DATABASE={
+            "user": config.DB_USER,
+            "password": config.DB_PASSWORD,
+            "dsn": config.ORACLE_DB_CONNECT,
+        },
+    )
 
-db_user = os.environ.get("DB_USER_NAME", 'ifmis')
-db_password = os.environ.get("DB_USER_PASSWORD", "oracle123")
-db_connect = os.environ.get("DB_SETTING", "10.1.9.213:1521/orclpdb1")
-service_port = port = os.environ.get("PORT", "9000")
-connection = cx_Oracle.connect(db_user, db_password, db_connect)
+    if test_config is None:
+        # load the instance config, if it exists, when not testing
+        app.config.from_pyfile('config.py', silent=True)
+    else:
+        # load the test config if passed in
+        app.config.from_mapping(test_config)
 
+    # ensure the instance folder exists
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
 
+    # a simple page that says hello
 
-app = Flask(__name__)
+    
+    @app.route('/hello')
+    def hello():
+        return 'Hello, World!'
 
+    
+    
+    @app.route('/')
+    def index():
+        from .db import get_db 
+        connection = get_db() 
+        cursor = connection.cursor()
 
-@app.route('/')
-def index():
-        cur = connection.cursor()
         query = ("SELECT d.donor_code,d.donor_edesc, "
         "sum(decode(e.BUD_YEAR,'2070/71',decode(substr(source_type_code,1,1),'0',e.expenditure_amount/1000,0),0))exp_gon70, "
         "sum(decode(e.BUD_YEAR,'2070/71',decode(substr(source_type_code,1,1),'1',e.expenditure_amount/1000,0),0))exp_grant70, "
@@ -40,7 +65,6 @@ def index():
         "where d.donor_code=e.donor_code "
         "group by d.donor_code,d.donor_edesc "
         "order by d.donor_code ")
-
 
         db_columns = (
                 "donor_code",
@@ -66,11 +90,11 @@ def index():
                 "total_expenditure",
         )
 
-        cur.execute(query)
+        cursor.execute(query)
 
         rows = []
 
-        for row in cur: 
+        for row in cursor: 
                 data = {}
                 for key, value in zip(db_columns, row):
                         data[key] = value 
@@ -79,8 +103,8 @@ def index():
         rows = json.dumps(rows)
 
         return rows
+    
 
+    
 
-if __name__ == '__main__':
-        app.run(host="0.0.0.0", port=int(service_port))
-
+    return app
