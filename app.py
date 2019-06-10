@@ -6,7 +6,7 @@ from flask import Flask
 db_user = os.environ.get("DB_USER_NAME", 'ifmis')
 db_password = os.environ.get("DB_USER_PASSWORD", "oracle123")
 db_connect = os.environ.get("DB_SETTING", "10.1.9.213:1521/orclpdb1")
-service_port = port = os.environ.get("PORT", "8080")
+service_port = port = os.environ.get("PORT", "9000")
 connection = cx_Oracle.connect(db_user, db_password, db_connect)
 
 
@@ -16,9 +16,6 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-
-        rows = []
-
         cur = connection.cursor()
         query = ("SELECT d.donor_code,d.donor_edesc, "
         "sum(decode(e.BUD_YEAR,'2070/71',decode(substr(source_type_code,1,1),'0',e.expenditure_amount/1000,0),0))exp_gon70, "
@@ -69,12 +66,9 @@ def index():
                 "total_expenditure",
         )
 
-        if rows:
-                return rows
-
-
         cur.execute(query)
 
+        rows = []
 
         for row in cur: 
                 data = {}
@@ -83,8 +77,6 @@ def index():
                 rows.append(data)
 
         rows = json.dumps(rows)
-
-       
 
         return rows
 
