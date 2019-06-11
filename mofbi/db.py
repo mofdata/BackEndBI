@@ -23,4 +23,3 @@ def init_app(app):
     app.teardown_appcontext(close_db)
     app.teardown.app_context(get_db )
 
-

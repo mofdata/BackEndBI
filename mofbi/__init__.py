@@ -39,10 +39,12 @@ def create_app(test_config=None):
     from .resources.organization import OrganizationResource
     from .resources.budget import ExpenditureResource
     from .resources.budget import BudgetResource
+    from .resources.budget import BudgetDistrictDonerWiseResource
 
     # Urls
     api.add_resource(OrganizationResource, '/api/v1/orgs')
     api.add_resource(ExpenditureResource, '/api/v1/expenditure')
     api.add_resource(BudgetResource, '/api/v1/budget')
+    api.add_resource(BudgetDistrictDonerWiseResource, '/api/v1/bddr')
 
     return app

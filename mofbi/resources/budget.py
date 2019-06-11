@@ -4,7 +4,6 @@ from flask_restful import Resource
 
 from mofbi.db import get_db
 
-
 class ExpenditureResource(Resource):
     """Donor wise six year Expenditure report"""
     def get(self):
@@ -140,22 +139,52 @@ class BudgetResource(Resource):
     def put(self):
         pass 
 
+
 class BudgetDistrictDonerWiseResource(Resource):
     """Donor and district wise query report""" 
-    query = ("select a.acc_CODE,P.PROJECT_EDESC,d.donor_code,d.donor_edesc,O.DISTRICT_CODE,O.DISTRICT_EDESC ",
-    "sum(decode(substr(source_type_code,1,1),'1',e.expenditure_amount/1000,0)) grant1, "
-    "sum(decode(substr(source_type_code,1,1),'2',e.expenditure_amount/1000,0)) loan, "
-    "sum(e.expenditure_amount/1000) from fmis.fmis_expenditure_detail e,c_donor d,C_PROJECT P,C_ACCOUNT A, LMBS_DISTRICT O "
-    "where  e.BUD_YEAR=A.BUD_YEAR AND "
-    "e.ACC_CODE=A.ACC_CODE AND "
-    "A.BUD_YEAR=P.BUD_YEAR AND "
-    "A.PROJECT_CODE=P.PROJECT_CODE AND "
-    "d.donor_code=e.donor_code AND  "
-    "e.expenditure_amount>0 AND "
-    "O.DISTRICT_CODE=e.DISTRICT_CODE and d.donor_code!='110101' and "
-    "e.bud_year='2075/76' "
-    "group by a.acc_CODE,P.PROJECT_EDESC,d.donor_code,d.donor_edesc,O.DISTRICT_CODE,O.DISTRICT_EDESC "
-    "order by a.acc_CODE ")
+
+    cols = [
+        'acc_code',
+        'project-edesc', 
+        'donor_code',
+        'donor_edesc',
+        'district_code',
+        'district_edesc',
+        'grant1',
+        'loan',
+        'sum(expenditure_amount/100)'	
+    ]
 
     def get(self):
+        connection = get_db() 
+        cursor = connection.cursor() 
+        query = ("select a.acc_CODE,P.PROJECT_EDESC,d.donor_code,d.donor_edesc,O.DISTRICT_CODE,O.DISTRICT_EDESC, "
+        "sum(decode(substr(source_type_code,1,1),'1',e.expenditure_amount/1000,0)) grant1, "
+        "sum(decode(substr(source_type_code,1,1),'2',e.expenditure_amount/1000,0)) loan, "
+        "sum(e.expenditure_amount/1000) from fmis.fmis_expenditure_detail e,c_donor d,C_PROJECT P,C_ACCOUNT A, LMBS_DISTRICT O "
+        "where  e.BUD_YEAR=A.BUD_YEAR AND "
+        "e.ACC_CODE=A.ACC_CODE AND "
+        "A.BUD_YEAR=P.BUD_YEAR AND "
+        "A.PROJECT_CODE=P.PROJECT_CODE AND "
+        "d.donor_code=e.donor_code AND  "
+        "e.expenditure_amount>0 AND "
+        "O.DISTRICT_CODE=e.DISTRICT_CODE and d.donor_code!='110101' and "
+        "e.bud_year='2075/76' "
+        "group by a.acc_CODE,P.PROJECT_EDESC,d.donor_code,d.donor_edesc,O.DISTRICT_CODE,O.DISTRICT_EDESC "
+        "order by a.acc_CODE ")
+            
+        cursor.execute(query)
+
+        result = []
+        for data in cursor:
+            record = {}
+            for key, value in zip(self.cols, data):
+                record[key] = value
+            result.append(record)
+        return result 
+
+    
+    def put(self):
         pass 
+
+
