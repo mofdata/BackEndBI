@@ -24,7 +24,7 @@ echo_supervisord_conf > /etc/supervisord.conf
 sudo systemctl start supervisord.service
 
 # Copy configuration of supervisor.
-sudo cp supervisor.conf  /etc/supervisord.d/mofbi_supervisor.conf 
+sudo cp supervisor.conf  /etc/supervisord.d/supervisor.conf 
 
 #Echo 
 echo "Uncomment files directory in supervisord.conf file under /etc/ directory" 
