@@ -6,7 +6,7 @@ cd -
 
 
 # Start nginx
-#sudo systemctl start nginx
+sudo systemctl start nginx
 
 # start supervisor
 sudo systemctl stop supervisord.service 

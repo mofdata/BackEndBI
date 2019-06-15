@@ -26,9 +26,15 @@ sudo systemctl start supervisord.service
 # Copy configuration of supervisor.
 sudo cp supervisor.conf  /etc/supervisord.d/supervisor.conf 
 
+# Add nginx to our user group
+sudo usermod -a -G $USER nginx
+
 #Echo 
 echo "Uncomment files directory in supervisord.conf file under /etc/ directory" 
 
 # Run gunicorn 
 source start.sh
 
+
+# Change permission of selinux to permissive
+setenforce permissive
